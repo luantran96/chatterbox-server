@@ -28,6 +28,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+var storage = [];
+var knownURL = ['/classes/messages'];
 
 var requestHandler = (request, response) => {
 
@@ -41,69 +43,79 @@ var requestHandler = (request, response) => {
   //
   // Documentation for both request and response can be found in the HTTP section at
   // http://nodejs.org/documentation/api/
-
-  // Do some basic logging.
-  //
-
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
+  
+  // Initializing constants and variables
+  
+  var statusCode;
   const { method, url } = request;
+  var headers = defaultCorsHeaders;
+  
+  ////////////////////////////////////////
+  
+  console.log('Serving request type ' + method + ' for url ' + url);
 
-  let body = [];
-  request.on('error', (err) => {
-    // This prints the error message and stack trace to `stderr`.
-    console.error(err.stack);
-  }).on('data', (chunk) => {
-    body.push(chunk);
-  }).on('end', () => {
-    body = Buffer.concat(body).toString();
-    // at this point, `body` has the entire request body stored in it as a string
-
-    response.on('error', (err) => {
-      console.error(err);
-    });
-
-
-    console.log('body : ', body);
-
-    //var parsedBody = JSON.parse(body);
-    //console.log('parsedBody : ', parsedBody);
-
-    // console.log('name: ', parsedBody.username);
-    // console.log('roomname: ', parsedBody.roomname);
-    // console.log('text: ', parsedBody.text);
-
-    // The outgoing status.
-    var statusCode = 200;
-
-    // See the note below about CORS headers.
-    var headers = defaultCorsHeaders;
-
-    // Tell the client we are sending them plain text.
-    //
-    // You will need to change this if you are sending something
-    // other than plain text, like JSON or HTML.
-    //headers['Content-Type'] = 'text/plain';
-    headers['Content-Type'] = 'application/json';
-
-    // .writeHead() writes to the request line and headers of the response,
-    // which includes the status and all headers.
-    response.writeHead(statusCode, headers);
-
-    // Make sure to always call response.end() - Node may not send
-    // anything back to the client until you do. The string you pass to
-    // response.end() will be the body of the response - i.e. what shows
-    // up in the browser.
-    //
-
-    // Calling .end "flushes" the response's internal buffer, forcing
-    // node to actually send all the data over to the client.
+  console.log('is ' + method + ' included: ' + defaultCorsHeaders['access-control-allow-methods'].includes(method));
+  console.log('is ' + url + ' known: ' + knownURL.includes(url));
+  
+  if(defaultCorsHeaders['access-control-allow-methods'].includes(method) && knownURL.includes(url)) {
     
-    response.end(body);
-  });
+     
+    let body = [];
+    request.on('error', (err) => {
+      // This prints the error message and stack trace to `stderr`.
+      console.error(err.stack);
+    }).on('data', (chunk) => {
+      body.push(chunk);
+    }).on('end', () => { // When message is fully received
+      
+      body = Buffer.concat(body).toString();
+      response.on('error', (err) => {
+        console.error(err);
+      });
+
+      console.log('body : ', body);
+      
+         if (method === 'POST') {
+          statusCode = 201; 
+          storage.push(JSON.parse(body));   
+          } else {
+            // The outgoing status.
+          statusCode = 200;             
+          }
+          
+          
+      
+      console.log('storage: ', storage);
+      
+
+
+      headers['Content-Type'] = 'application/json';
+
+      // .writeHead() writes to the request line and headers of the response,
+      // which includes the status and all headers.
+      response.writeHead(statusCode, headers);
+      
+      var responseBody = {};
+      var results = [];     
+      
+      for (var i = 0; i < storage.length; i++) {
+        results.push(storage[i]);
+      }
+      
+      responseBody.results = results;  
+      //console.log(response);   
+      response.end(JSON.stringify(responseBody));
+      
+    });
+  } else {
+    // Error : method not found
+    
+    response.statusCode = 404;
+    response.end();
+    
+    
+  }
+  
 };
 
 
