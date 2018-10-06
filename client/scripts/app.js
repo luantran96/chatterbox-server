@@ -12,10 +12,10 @@ var App = {
     MessagesView.initialize();
 
     // Fetch initial batch of messages
-    App.startSpinner();
-    App.fetch(App.stopSpinner);
+    //App.startSpinner();
+    //App.fetch(App.stopSpinner);
 
-    App.stopSpinner();
+    //App.stopSpinner();
     // Poll for new messages every 3 sec
     setInterval(App.fetch, 3000);
       },
@@ -23,7 +23,9 @@ var App = {
   fetch: function(callback = ()=>{}) {
     Parse.readAll((data) => {
 
-      console.log(data.results);
+      console.log(data);
+      // Don't bother to update if we have no messages
+      if (!data.results || !data.results.length) { return; }
       
       Rooms.update(data.results, RoomsView.render);
       Messages.update(data.results, MessagesView.render);

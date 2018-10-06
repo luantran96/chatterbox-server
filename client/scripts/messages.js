@@ -20,23 +20,20 @@ var Messages = {
 
   update: function(messages, callback = ()=>{}) {
     var length = Object.keys(Messages._data).length;
-    
-    var counter = 0;
-    
+       
     for (let message of messages) {
       Messages.objectIDgenerator(message);
       Messages._data[message.objectId] = Messages._conform(message);
-      counter++;
+      
     }
-    console.log('counter : ', counter);
-    console.log('_data: ', Messages._data);
     
-    callback(Messages._data);
+    console.log('length: ', length);
+    console.log('Object.keys(Messages._data).length: ', Object.keys(Messages._data).length);
     
     // only invoke the callback if something changed
-    // if (Object.keys(Messages._data).length !== length) {
-    //   callback(Messages.items());
-    // }
+    if (Object.keys(Messages._data).length !== length) {
+      callback(Messages.items());
+    }
   },
 
   _conform: function(message) {

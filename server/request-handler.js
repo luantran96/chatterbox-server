@@ -47,7 +47,7 @@ var requestHandler = (request, response) => {
   var isURLknown = knownURL.includes(url);
   
   ////////////////////////////////////////
-  console.log('\n\n');
+  console.log('\n');
   console.log('Serving request type ' + method + ' for url ' + url);
 
   console.log('is ' + method + ' included: ' + defaultCorsHeaders['access-control-allow-methods'].includes(method));
@@ -57,101 +57,31 @@ var requestHandler = (request, response) => {
   /* Another way of implementing request-handler */  
   /*******************************************/
   
-  // if(isMethodIncluded) {
+  if(isMethodIncluded && isURLknown) {
        
-  //   let body = [];
-   
-  // if(method === 'POST') {
-    
-  //   request.on('data', (chunk) => {
-      
-  //     body.push(chunk);
-      
-  //   }).on('end', () => {
-        
-  //     body = Buffer.concat(body).toString();
-
-  //     console.log('body : ', body);
-      
-  //     statusCode = 201; 
-  //     storage.push(JSON.parse(body));   
-       
-                      
-  //     console.log('storage: ', storage);
-      
-  //     headers['Content-Type'] = 'application/json';
-
-  //     // .writeHead() writes to the request line and headers of the response,
-  //     // which includes the status and all headers.
-  //     response.writeHead(statusCode, headers);
-      
-  //     var responseBody = {};
-  //     var results = [];     
-      
-  //     for (var i = 0; i < storage.length; i++) {
-  //       results.push(storage[i]);
-  //     }
-      
-  //     responseBody.results = results;  
-  //     //console.log(response);   
-  //     response.end(JSON.stringify(responseBody));
-      
-  //   });
-     
-  // } else if (method === 'GET') {
-    
-  //   statusCode = 200; 
-  //   headers['Content-Type'] = 'application/json';
-  //   response.writeHead(statusCode, headers);
-  //   var responseBody = {};
-  //   var results = [];     
-    
-  //   for (var i = 0; i < storage.length; i++) {
-  //     results.push(storage[i]);
-  //   }
-    
-  //   responseBody.results = results;  
-  //   //console.log(response);   
-  //   response.end(JSON.stringify(responseBody));
-      
-  // }
-  // } else {
-    
-  //   statusCode = 404;
-  //   response.writeHead(statusCode, headers);
-  //   response.end();
-  // }
-  
- /**************************************************/
- 
-  /*******************************************/
-  /* One way of implementing request-handler */  
-  /*******************************************/
-  
-  
-  if (isMethodIncluded && isURLknown) {
-    
     let body = [];
-    request.on('error', (err) => {
-      // This prints the error message and stack trace to `stderr`.
-      console.error(err.stack);
-    }).on('data', (chunk) => {
-      body.push(chunk);
-    }).on('end', () => { // When message is fully received
+    
+  if (method === 'OPTIONS') {
+
+    statusCode = 200;
+    response.writeHead(statusCode, headers);
+    response.end();
+    
+  } else if(method === 'POST') {
+    
+    request.on('data', (chunk) => {
       
+      body.push(chunk); 
+      
+    }).on('end', () => {
+        
       body = Buffer.concat(body).toString();
-      response.on('error', (err) => {
-        console.error(err);
-      });
 
       console.log('body : ', body);
       
-      if (method === 'POST') {
-        statusCode = 201; 
-        storage.push(JSON.parse(body));   
-      } else {
-        statusCode = 200;             
-      }
+      statusCode = 201; 
+      storage.push(JSON.parse(body));   
+       
                       
       console.log('storage: ', storage);
       
@@ -173,13 +103,89 @@ var requestHandler = (request, response) => {
       response.end(JSON.stringify(responseBody));
       
     });
-  } else {
-    // Error : method not found
-    
-    response.statusCode = 404;
-    response.end();
      
+  } else if (method === 'GET') {
+    
+    statusCode = 200; 
+    headers['Content-Type'] = 'application/json';
+    response.writeHead(statusCode, headers);
+    var responseBody = {};
+    var results = [];     
+    
+    for (var i = 0; i < storage.length; i++) {
+      results.push(storage[i]);
+    }
+    
+    responseBody.results = results;  
+    //console.log(response);   
+    response.end(JSON.stringify(responseBody));
+      
   }
+  } else {
+    
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
+  }
+  
+ /*********************************************************************/
+ 
+  /*******************************************************/
+  /* Using nodejs guide of implementing request-handler */  
+  /*******************************************************/
+  
+  
+  // if (isMethodIncluded && isURLknown) {
+    
+  //   let body = [];
+  //   request.on('error', (err) => {
+  //     // This prints the error message and stack trace to `stderr`.
+  //     console.error(err.stack);
+  //   }).on('data', (chunk) => {
+  //     body.push(chunk);
+  //   }).on('end', () => { // When message is fully received
+      
+  //     body = Buffer.concat(body).toString();
+  //     response.on('error', (err) => {
+  //       console.error(err);
+  //     });
+
+  //     console.log('body : ', body);
+      
+  //     if (method === 'POST') {
+  //       statusCode = 201; 
+  //       storage.push(JSON.parse(body));   
+  //     } else {
+  //       statusCode = 200;             
+  //     }
+                      
+  //     console.log('storage: ', storage);
+      
+  //     headers['Content-Type'] = 'application/json';
+
+  //     // .writeHead() writes to the request line and headers of the response,
+  //     // which includes the status and all headers.
+  //     response.writeHead(statusCode, headers);
+      
+  //     var responseBody = {};
+  //     var results = [];     
+      
+  //     for (var i = 0; i < storage.length; i++) {
+  //       results.push(storage[i]);
+  //     }
+      
+  //     responseBody.results = results;  
+  //     //console.log(response);   
+  //     response.end(JSON.stringify(responseBody));
+      
+  //   });
+  // } else {
+  //   // Error : method not found
+    
+  //   response.statusCode = 404;
+  //   response.end();
+     
+  // }
 
 /**************************************************/
 
