@@ -7,7 +7,14 @@ var Messages = {
     return _.chain(Object.values(Messages._data)).sortBy('createdAt');
   },
 
+  objectIDgenerator: function(message) {
+    
+    message.objectId = Math.random() * Math.pow(2,10);
+    
+  },
+  
   add: function(message, callback = ()=>{}) {
+    Messages.objectIDgenerator(message);
     Messages._data[message.objectId] = message;
     callback(Messages.items());
   },

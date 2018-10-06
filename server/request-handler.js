@@ -51,7 +51,7 @@ var requestHandler = (request, response) => {
   console.log('Serving request type ' + method + ' for url ' + url);
 
   console.log('is ' + method + ' included: ' + defaultCorsHeaders['access-control-allow-methods'].includes(method));
-  console.log('is ' + url + ' known: ' + knownURL.includes(url));
+  console.log('is ' + decodeURI(url) + ' known: ' + knownURL.includes(url));
  
    /*******************************************/
   /* Another way of implementing request-handler */  
@@ -129,7 +129,7 @@ var requestHandler = (request, response) => {
   /*******************************************/
   
   
-  if (isMethodIncluded) {
+  if (isMethodIncluded && isURLknown) {
     
     let body = [];
     request.on('error', (err) => {
