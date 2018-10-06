@@ -4,31 +4,31 @@ var Messages = {
   _data: {},
 
   items: function() {
-    return _.chain(Object.values(Messages._data));
+    return _.chain(Object.values(Messages._data)).sortBy('createdAt');
   },
 
   objectIDgenerator: function(message) {
-    message.objectId = Math.random() * Math.pow(2,10);
+    message.objectId = Date.now();
   },
   
   add: function(message, callback = ()=>{}) {
     Messages.objectIDgenerator(message);
-    console.log('message.objectId: ', message.objectId);
+    
     Messages._data[message.objectId] = message;
     callback(Messages.items());
   },
 
   update: function(messages, callback = ()=>{}) {
-    var length = Object.keys(Messages._data).length;
-       
-    for (let message of messages) {
-      Messages.objectIDgenerator(message);
-      Messages._data[message.objectId] = Messages._conform(message);
-      
-    }
     
+    console.log('_data before update:' ,Messages._data);
+    var length = Object.keys(Messages._data).length;
+    
+    for (let message of messages) {
+      Messages._data[message.objectId] = Messages._conform(message);   
+    }
+    console.log('_data after update:' ,Messages._data);
     console.log('length: ', length);
-    console.log('Object.keys(Messages._data).length: ', Object.keys(Messages._data).length);
+    console.log('messages.length: ', messages.length);
     
     // only invoke the callback if something changed
     if (Object.keys(Messages._data).length !== length) {

@@ -80,7 +80,9 @@ var requestHandler = (request, response) => {
       console.log('body : ', body);
       
       statusCode = 201; 
-      storage.push(JSON.parse(body));   
+      var storedBody = JSON.parse(body);
+      body.objectId = Date.now();
+      storage.push(storedBody);   
        
                       
       console.log('storage: ', storage);
@@ -117,7 +119,7 @@ var requestHandler = (request, response) => {
     }
     
     responseBody.results = results;  
-    //console.log(response);   
+    console.log(responseBody);   
     response.end(JSON.stringify(responseBody));
       
   }
