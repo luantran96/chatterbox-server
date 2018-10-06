@@ -21,6 +21,8 @@ this file and include it in basic-server.js so that it actually works.
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
+
+
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -32,34 +34,103 @@ var storage = [];
 var knownURL = ['/classes/messages'];
 
 var requestHandler = (request, response) => {
-
-  //const { method, url } = request;
-
-  // Request and Response come from node's http module.
-  //
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
+  
+  console.log('typeof request: ', typeof request);
+  console.log('typeof response: ', typeof response);
   
   // Initializing constants and variables
   
   var statusCode;
   const { method, url } = request;
   var headers = defaultCorsHeaders;
+  var isMethodIncluded = defaultCorsHeaders['access-control-allow-methods'].includes(method);
+  var isURLknown = knownURL.includes(url);
   
   ////////////////////////////////////////
-  
+  console.log('\n\n');
   console.log('Serving request type ' + method + ' for url ' + url);
 
   console.log('is ' + method + ' included: ' + defaultCorsHeaders['access-control-allow-methods'].includes(method));
   console.log('is ' + url + ' known: ' + knownURL.includes(url));
+ 
+   /*******************************************/
+  /* Another way of implementing request-handler */  
+  /*******************************************/
   
-  if(defaultCorsHeaders['access-control-allow-methods'].includes(method) && knownURL.includes(url)) {
+  // if(isMethodIncluded) {
+       
+  //   let body = [];
+   
+  // if(method === 'POST') {
     
+  //   request.on('data', (chunk) => {
+      
+  //     body.push(chunk);
+      
+  //   }).on('end', () => {
+        
+  //     body = Buffer.concat(body).toString();
+
+  //     console.log('body : ', body);
+      
+  //     statusCode = 201; 
+  //     storage.push(JSON.parse(body));   
+       
+                      
+  //     console.log('storage: ', storage);
+      
+  //     headers['Content-Type'] = 'application/json';
+
+  //     // .writeHead() writes to the request line and headers of the response,
+  //     // which includes the status and all headers.
+  //     response.writeHead(statusCode, headers);
+      
+  //     var responseBody = {};
+  //     var results = [];     
+      
+  //     for (var i = 0; i < storage.length; i++) {
+  //       results.push(storage[i]);
+  //     }
+      
+  //     responseBody.results = results;  
+  //     //console.log(response);   
+  //     response.end(JSON.stringify(responseBody));
+      
+  //   });
      
+  // } else if (method === 'GET') {
+    
+  //   statusCode = 200; 
+  //   headers['Content-Type'] = 'application/json';
+  //   response.writeHead(statusCode, headers);
+  //   var responseBody = {};
+  //   var results = [];     
+    
+  //   for (var i = 0; i < storage.length; i++) {
+  //     results.push(storage[i]);
+  //   }
+    
+  //   responseBody.results = results;  
+  //   //console.log(response);   
+  //   response.end(JSON.stringify(responseBody));
+      
+  // }
+  // } else {
+    
+  //   statusCode = 404;
+  //   response.writeHead(statusCode, headers);
+  //   response.end();
+  // }
+  
+ /**************************************************/
+ 
+  /*******************************************/
+  /* One way of implementing request-handler */  
+  /*******************************************/
+  
+  
+  if (isMethodIncluded) {
+    
     let body = [];
     request.on('error', (err) => {
       // This prints the error message and stack trace to `stderr`.
@@ -75,20 +146,15 @@ var requestHandler = (request, response) => {
 
       console.log('body : ', body);
       
-         if (method === 'POST') {
-          statusCode = 201; 
-          storage.push(JSON.parse(body));   
-          } else {
-            // The outgoing status.
-          statusCode = 200;             
-          }
-          
-          
-      
+      if (method === 'POST') {
+        statusCode = 201; 
+        storage.push(JSON.parse(body));   
+      } else {
+        statusCode = 200;             
+      }
+                      
       console.log('storage: ', storage);
       
-
-
       headers['Content-Type'] = 'application/json';
 
       // .writeHead() writes to the request line and headers of the response,
@@ -112,10 +178,11 @@ var requestHandler = (request, response) => {
     
     response.statusCode = 404;
     response.end();
-    
-    
+     
   }
-  
+
+/**************************************************/
+
 };
 
 
